@@ -36,7 +36,7 @@ public final class CuboidParticleRenderer {
     private void renderParticle(PoseStack poseStack, VertexConsumer consumer, CuboidParticleSnapshot particle) {
         CuboidVector position = particle.position();
         CuboidParticleColor color = particle.color();
-        double half = particle.size() * 0.5;
+        double half = particle.visualSize() * 0.5;
 
         LevelRenderer.addChainedFilledBoxVertices(
                 poseStack,

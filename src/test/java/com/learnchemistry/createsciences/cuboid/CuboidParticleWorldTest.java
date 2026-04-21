@@ -82,6 +82,59 @@ class CuboidParticleWorldTest {
         assertPairwiseSeparated(world.snapshots());
     }
 
+    @Test
+    void fallingParticlesRenderSmallerThanTheirCollisionSize() {
+        CuboidParticleWorld world = new CuboidParticleWorld(64, CuboidParticleMaterial.water());
+        world.spawn(new CuboidParticleSpawn(new CuboidVector(0.0, 1.0, 0.0), CuboidVector.ZERO, 0.125, CuboidParticleColor.waterBlue(), 200));
+
+        world.tick(FlatFloorCuboidWorldCollider.at(0.0));
+
+        CuboidParticleSnapshot particle = world.snapshots().getFirst();
+        assertTrue(particle.visualSize() < particle.size() * 0.95);
+    }
+
+    @Test
+    void movingSurfaceParticlesRenderSmallerThanStillSurfaceParticles() {
+        CuboidParticleMaterial calmMaterial = new CuboidParticleMaterial(0.0, 1.0, 1.0, 0.0, 0.24, 0.20);
+        CuboidParticleWorld stillWorld = new CuboidParticleWorld(64, calmMaterial);
+        CuboidParticleWorld movingWorld = new CuboidParticleWorld(64, calmMaterial);
+        stillWorld.spawn(new CuboidParticleSpawn(new CuboidVector(0.0, 0.0625, 0.0), CuboidVector.ZERO, 0.125, CuboidParticleColor.waterBlue(), 200));
+        movingWorld.spawn(new CuboidParticleSpawn(new CuboidVector(0.0, 0.0625, 0.0), new CuboidVector(0.10, 0.0, 0.0), 0.125, CuboidParticleColor.waterBlue(), 200));
+
+        for (int i = 0; i < 3; i++) {
+            stillWorld.tick(FlatFloorCuboidWorldCollider.at(0.0));
+            movingWorld.tick(FlatFloorCuboidWorldCollider.at(0.0));
+        }
+
+        assertTrue(movingWorld.snapshots().getFirst().visualSize() < stillWorld.snapshots().getFirst().visualSize());
+    }
+
+    @Test
+    void surroundedSurfaceParticlesRenderFullerThanEdgeParticles() {
+        CuboidParticleMaterial calmMaterial = new CuboidParticleMaterial(0.0, 1.0, 1.0, 0.0, 0.24, 0.20);
+        CuboidParticleWorld world = new CuboidParticleWorld(64, calmMaterial);
+        double size = 0.125;
+        double y = size * 0.5;
+        world.spawn(new CuboidParticleSpawn(new CuboidVector(0.0, y, 0.0), CuboidVector.ZERO, size, CuboidParticleColor.waterBlue(), 200));
+        world.spawn(new CuboidParticleSpawn(new CuboidVector(size, y, 0.0), CuboidVector.ZERO, size, CuboidParticleColor.waterBlue(), 200));
+        world.spawn(new CuboidParticleSpawn(new CuboidVector(-size, y, 0.0), CuboidVector.ZERO, size, CuboidParticleColor.waterBlue(), 200));
+        world.spawn(new CuboidParticleSpawn(new CuboidVector(0.0, y, size), CuboidVector.ZERO, size, CuboidParticleColor.waterBlue(), 200));
+        world.spawn(new CuboidParticleSpawn(new CuboidVector(0.0, y, -size), CuboidVector.ZERO, size, CuboidParticleColor.waterBlue(), 200));
+
+        for (int i = 0; i < 4; i++) {
+            world.tick(FlatFloorCuboidWorldCollider.at(0.0));
+        }
+
+        CuboidParticleSnapshot center = world.snapshots().stream()
+                .min((first, second) -> Double.compare(first.position().horizontalLengthSqr(), second.position().horizontalLengthSqr()))
+                .orElseThrow();
+        CuboidParticleSnapshot edge = world.snapshots().stream()
+                .max((first, second) -> Double.compare(first.position().horizontalLengthSqr(), second.position().horizontalLengthSqr()))
+                .orElseThrow();
+
+        assertTrue(center.visualSize() > edge.visualSize() + 0.004);
+    }
+
     private static void assertPairwiseSeparated(java.util.List<CuboidParticleSnapshot> particles) {
         for (int i = 0; i < particles.size(); i++) {
             for (int j = i + 1; j < particles.size(); j++) {

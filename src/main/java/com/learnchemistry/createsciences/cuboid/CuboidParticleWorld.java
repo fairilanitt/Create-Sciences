@@ -8,6 +8,17 @@ public class CuboidParticleWorld {
     private static final double MIN_DISTANCE = 1.0E-5;
     private static final double OVERLAP_EPSILON = 1.0E-6;
     private static final double SEPARATION_DAMPING = 0.35;
+    private static final double EDGE_VISUAL_SIZE_FACTOR = 0.74;
+    private static final double INTERIOR_VISUAL_SIZE_FACTOR = 0.98;
+    private static final double MIN_VISUAL_SIZE_FACTOR = 0.58;
+    private static final double MAX_VISUAL_SIZE_FACTOR = 1.0;
+    private static final double MOTION_VISUAL_SHRINK = 0.12;
+    private static final double AIRBORNE_VISUAL_SHRINK = 0.08;
+    private static final double FALLING_VISUAL_SHRINK = 0.18;
+    private static final double VISUAL_SIZE_RESPONSE = 0.45;
+    private static final double NEIGHBOR_RADIUS_FACTOR = 1.36;
+    private static final double NEIGHBOR_VERTICAL_FACTOR = 0.80;
+    private static final int FULL_VISUAL_NEIGHBOR_COUNT = 4;
     private static final int OVERLAP_SOLVER_PASSES = 8;
 
     private final int maxParticles;
@@ -39,6 +50,7 @@ public class CuboidParticleWorld {
         }
 
         resolveCuboidOverlaps(collider);
+        updateVisualSizes();
         particles.removeIf(ParticleState::isExpired);
     }
 
@@ -88,6 +100,37 @@ public class CuboidParticleWorld {
 
     private static double alternateDirection(int first, int second) {
         return ((first + second) & 1) == 0 ? 0.70710678118 : -0.70710678118;
+    }
+
+    private void updateVisualSizes() {
+        for (int i = 0; i < particles.size(); i++) {
+            ParticleState particle = particles.get(i);
+            particle.updateVisualSize(material, countCloseNeighbors(i));
+        }
+    }
+
+    private int countCloseNeighbors(int particleIndex) {
+        ParticleState particle = particles.get(particleIndex);
+        int closeNeighbors = 0;
+
+        for (int i = 0; i < particles.size(); i++) {
+            if (i == particleIndex) {
+                continue;
+            }
+
+            ParticleState other = particles.get(i);
+            double neighborRadius = ((particle.size + other.size) * 0.5) * NEIGHBOR_RADIUS_FACTOR;
+            double verticalLimit = ((particle.size + other.size) * 0.5) * NEIGHBOR_VERTICAL_FACTOR;
+            double dx = other.position.x() - particle.position.x();
+            double dz = other.position.z() - particle.position.z();
+            double dy = Math.abs(other.position.y() - particle.position.y());
+
+            if (dy <= verticalLimit && dx * dx + dz * dz <= neighborRadius * neighborRadius) {
+                closeNeighbors++;
+            }
+        }
+
+        return closeNeighbors;
     }
 
     private void resolveCuboidOverlaps(CuboidWorldCollider collider) {
@@ -206,6 +249,7 @@ public class CuboidParticleWorld {
         private CuboidVector position;
         private CuboidVector velocity;
         private final double size;
+        private double visualSize;
         private final CuboidParticleColor color;
         private final int lifetimeTicks;
         private int ageTicks;
@@ -216,6 +260,7 @@ public class CuboidParticleWorld {
             this.position = spawn.position();
             this.velocity = spawn.velocity();
             this.size = spawn.size();
+            this.visualSize = spawn.size();
             this.color = spawn.color();
             this.lifetimeTicks = spawn.lifetimeTicks();
         }
@@ -272,6 +317,29 @@ public class CuboidParticleWorld {
             };
         }
 
+        private void updateVisualSize(CuboidParticleMaterial material, int closeNeighbors) {
+            double neighborFill = Math.min(1.0, closeNeighbors / (double) FULL_VISUAL_NEIGHBOR_COUNT);
+            double targetFactor = EDGE_VISUAL_SIZE_FACTOR
+                    + (INTERIOR_VISUAL_SIZE_FACTOR - EDGE_VISUAL_SIZE_FACTOR) * neighborFill;
+
+            double maxHorizontalSpeed = material.maxHorizontalSpeed();
+            if (maxHorizontalSpeed > 0.0) {
+                double speedRatio = Math.min(1.0, Math.sqrt(velocity.horizontalLengthSqr()) / maxHorizontalSpeed);
+                targetFactor -= speedRatio * MOTION_VISUAL_SHRINK;
+            }
+
+            if (!onSurface) {
+                targetFactor -= AIRBORNE_VISUAL_SHRINK;
+                if (velocity.y() < -MIN_DISTANCE) {
+                    targetFactor -= FALLING_VISUAL_SHRINK;
+                }
+            }
+
+            targetFactor = Math.max(MIN_VISUAL_SIZE_FACTOR, Math.min(MAX_VISUAL_SIZE_FACTOR, targetFactor));
+            double targetSize = size * targetFactor;
+            visualSize += (targetSize - visualSize) * VISUAL_SIZE_RESPONSE;
+        }
+
         private CuboidVector clampHorizontalSpeed(CuboidVector input, double maxSpeed) {
             double speedSqr = input.horizontalLengthSqr();
             double maxSqr = maxSpeed * maxSpeed;
@@ -288,7 +356,7 @@ public class CuboidParticleWorld {
         }
 
         private CuboidParticleSnapshot snapshot() {
-            return new CuboidParticleSnapshot(previousPosition, position, velocity, size, color, onSurface);
+            return new CuboidParticleSnapshot(previousPosition, position, velocity, size, visualSize, color, onSurface);
         }
     }
 }

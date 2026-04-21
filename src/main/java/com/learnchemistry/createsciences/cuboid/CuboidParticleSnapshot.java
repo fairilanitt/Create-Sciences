@@ -5,6 +5,7 @@ public record CuboidParticleSnapshot(
         CuboidVector position,
         CuboidVector velocity,
         double size,
+        double visualSize,
         CuboidParticleColor color,
         boolean onSurface
 ) {
