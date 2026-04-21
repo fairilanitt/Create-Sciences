@@ -1,0 +1,14 @@
+{
+  "gui.create_sciences.cuboid_liquid_settings": "Cuboid Liquid Settings",
+  "gui.create_sciences.done": "Done",
+  "gui.create_sciences.liquid_colour": "Liquid Colour",
+  "gui.create_sciences.liquid_colour.acid_green": "Acid Green",
+  "gui.create_sciences.liquid_colour.molten_orange": "Molten Orange",
+  "gui.create_sciences.liquid_colour.oil_black": "Oil Black",
+  "gui.create_sciences.liquid_colour.vapor_purple": "Vapor Purple",
+  "gui.create_sciences.liquid_colour.water_blue": "Water Blue",
+  "gui.create_sciences.preview": "Preview",
+  "item.create_sciences.cuboid_particle_wand": "Cuboid Particle Wand",
+  "itemGroup.create_sciences": "Create: Sciences",
+  "mod.create_sciences.name": "Create: Sciences"
+}
