@@ -1,5 +1,7 @@
 {
+  "block.create_sciences.beaker": "Beaker",
   "block.create_sciences.gas_burner": "Gas Burner",
+  "block.create_sciences.glass_tube": "Glass Tube",
   "gui.create_sciences.cuboid_liquid_settings": "Cuboid Liquid Settings",
   "gui.create_sciences.done": "Done",
   "gui.create_sciences.liquid_colour": "Liquid Colour",

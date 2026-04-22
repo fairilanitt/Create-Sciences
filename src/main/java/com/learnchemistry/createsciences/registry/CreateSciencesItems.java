@@ -22,6 +22,16 @@ public final class CreateSciencesItems {
             () -> new BlockItem(CreateSciencesBlocks.GAS_BURNER.get(), new Item.Properties())
     );
 
+    public static final DeferredItem<BlockItem> BEAKER = ITEMS.register(
+            "beaker",
+            () -> new BlockItem(CreateSciencesBlocks.BEAKER.get(), new Item.Properties())
+    );
+
+    public static final DeferredItem<BlockItem> GLASS_TUBE = ITEMS.register(
+            "glass_tube",
+            () -> new BlockItem(CreateSciencesBlocks.GLASS_TUBE.get(), new Item.Properties())
+    );
+
     private CreateSciencesItems() {
     }
 

@@ -19,6 +19,8 @@ public final class CreateSciencesCreativeTabs {
                     .displayItems((parameters, output) -> {
                         output.accept(CreateSciencesItems.CUBOID_PARTICLE_WAND.get());
                         output.accept(CreateSciencesItems.GAS_BURNER.get());
+                        output.accept(CreateSciencesItems.BEAKER.get());
+                        output.accept(CreateSciencesItems.GLASS_TUBE.get());
                     })
                     .build()
     );

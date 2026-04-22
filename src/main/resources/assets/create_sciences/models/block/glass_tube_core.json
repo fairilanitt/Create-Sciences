@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "minecraft:block/glass",
+    "down": "minecraft:block/glass",
+    "up": "minecraft:block/glass",
+    "north": "minecraft:block/glass",
+    "south": "minecraft:block/glass",
+    "west": "minecraft:block/glass",
+    "east": "minecraft:block/glass"
+  },
+  "elements": [
+    {
+      "from": [6, 6, 6],
+      "to": [10, 10, 10],
+      "faces": {
+        "down": {"texture": "#down"},
+        "up": {"texture": "#up"},
+        "north": {"texture": "#north"},
+        "south": {"texture": "#south"},
+        "west": {"texture": "#west"},
+        "east": {"texture": "#east"}
+      }
+    }
+  ]
+}

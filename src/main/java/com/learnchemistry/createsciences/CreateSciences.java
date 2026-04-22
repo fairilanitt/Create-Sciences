@@ -1,6 +1,7 @@
 package com.learnchemistry.createsciences;
 
 import com.learnchemistry.createsciences.registry.CreateSciencesCreativeTabs;
+import com.learnchemistry.createsciences.registry.CreateSciencesBlockEntityTypes;
 import com.learnchemistry.createsciences.registry.CreateSciencesBlocks;
 import com.learnchemistry.createsciences.registry.CreateSciencesItems;
 import com.mojang.logging.LogUtils;
@@ -17,6 +18,7 @@ public class CreateSciences {
 
     public CreateSciences(IEventBus modEventBus) {
         CreateSciencesBlocks.register(modEventBus);
+        CreateSciencesBlockEntityTypes.register(modEventBus);
         CreateSciencesItems.register(modEventBus);
         CreateSciencesCreativeTabs.register(modEventBus);
         modEventBus.addListener(this::commonSetup);
