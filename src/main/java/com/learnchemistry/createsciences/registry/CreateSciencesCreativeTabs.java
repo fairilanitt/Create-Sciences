@@ -16,7 +16,10 @@ public final class CreateSciencesCreativeTabs {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.create_sciences"))
                     .icon(() -> CreateSciencesItems.CUBOID_PARTICLE_WAND.get().getDefaultInstance())
-                    .displayItems((parameters, output) -> output.accept(CreateSciencesItems.CUBOID_PARTICLE_WAND.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(CreateSciencesItems.CUBOID_PARTICLE_WAND.get());
+                        output.accept(CreateSciencesItems.GAS_BURNER.get());
+                    })
                     .build()
     );
 
